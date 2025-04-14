@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Signup - Movie Info Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(-45deg, #f2f2f2, #dcdcdc, #cccccc, #b3b3b3);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      display: flex;
+      gap: 60px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .signup-box {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      width: 340px;
+      color: #333;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+
+    .form-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px 10px 10px 0;
+      border: none;
+      border-bottom: 2px solid #ccc;
+      background: transparent;
+      color: #333;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .form-group label {
+      position: absolute;
+      top: 10px;
+      left: 0;
+      pointer-events: none;
+      transition: 0.2s ease all;
+      color: #aaa;
+    }
+
+    .form-group input:focus ~ label,
+    .form-group input:not(:placeholder-shown) ~ label {
+      top: -15px;
+      font-size: 12px;
+      color: #61dafb;
+    }
+
+    .signup-box button {
+      width: 100%;
+      padding: 10px;
+      background-color: #61dafb;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .signup-box button:hover {
+      background-color: #21a1f1;
+    }
+
+    .link {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #61dafb;
+      text-decoration: none;
+    }
+
+    .link a:hover {
+      text-decoration: underline;
+    }
+
+    .lottie-player {
+      max-width: 300px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <lottie-player class="lottie-player" src="https://assets7.lottiefiles.com/packages/lf20_touohxv0.json"  background="transparent"  speed="1"  loop autoplay></lottie-player>
+
+    <form class="signup-box" method="POST">
+      <h2>Create Account</h2>
+      <div class="form-group">
+        <input type="text" name="username" required placeholder=" " />
+        <label>Username</label>
+      </div>
+      <div class="form-group">
+        <input type="email" name="email" required placeholder=" " />
+        <label>Email</label>
+      </div>
+      <div class="form-group">
+        <input type="password" name="password" required placeholder=" " />
+        <label>Password</label>
+      </div>
+      <button type="submit">Sign Up</button>
+      <div class="link">
+        Already have an account? <a href="/login">Login</a>
+      </div>
+    </form>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Movie Info Hub</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      color: #212529;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .hero {
+      background: url('https://image.tmdb.org/t/p/original//pJritzV8bR4pPpn9DUTfDdjEbk1.jpg') center/cover no-repeat;
+      height: 50vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2e2e2e;
+      font-size: 2.5rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .carousel-title {
+      margin: 30px 0 10px 15px;
+      font-size: 1.5rem;
+      color: #343a40;
+    }
+    .movie-card {
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .movie-card:hover {
+      transform: scale(1.05);
+    }
+    .movie-poster {
+      width: 150px;
+      border-radius: 10px;
+    }
+    .search-bar {
+      margin: 20px;
+      text-align: center;
+    }
+    .navbar {
+      background-color: #343a40;
+    }
+    .navbar a {
+      color: white;
+      margin-right: 15px;
+    }
+    .navbar a:hover {
+      color: #ffc107;
+    }
+    .sort-dropdown {
+      margin: 20px;
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg px-3">
+    <a class="navbar-brand text-white" href="/">🎬 Movie Info Hub</a>
+    <div class="ms-auto">
+      {% if username %}
+        <span class="me-3 text-white">Welcome, {{ username }}</span>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+      {% else %}
+        <a href="/login" class="btn btn-outline-light btn-sm">Login</a>
+        <a href="/signup" class="btn btn-outline-light btn-sm ms-2">Signup</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="hero">
+    Explore Your Favourite Movies 🍿
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <form action="/search" method="GET" class="d-flex justify-content-center">
+      <input type="text" name="query" placeholder="Search movies..." class="form-control w-50 me-2">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+  </div>
+
+  <!-- Sorting Dropdown -->
+  <div class="sort-dropdown mx-auto">
+    <select id="sortBy" class="form-select">
+      <option value="popularity.desc">Most Popular</option>
+      <option value="release_date.desc">Newest</option>
+      <option value="release_date.asc">Oldest</option>
+      <option value="vote_average.desc">Highest Rated</option>
+      <option value="vote_average.asc">Lowest Rated</option>
+    </select>
+  </div>
+
+  <div id="genresContainer" class="container-fluid pb-5"></div>
+
+  <script>
+    let genres = [];
+    let currentSortBy = 'popularity.desc';
+
+    async function fetchGenres() {
+      const res = await fetch('/api/categories');
+      const data = await res.json();
+      return data.genres;
+    }
+
+    async function fetchMoviesByGenre(genreId, sortBy) {
+      const res = await fetch(`/api/popular/${genreId}?sort_by=${sortBy}`);
+      const data = await res.json();
+      return data.results;
+    }
+
+    function createMovieCard(movie) {
+      const posterPath = movie.poster_path
+        ? `https://image.tmdb.org/t/p/w200${movie.poster_path}`
+        : 'https://via.placeholder.com/150x225?text=No+Image';
+
+      return `
+        <div class="col-auto mb-3 movie-card" onclick="goToMovie(${movie.id})">
+          <img src="${posterPath}" class="movie-poster shadow-sm" title="${movie.title}">
+          <p class="text-center mt-2 small">${movie.title}</p>
+        </div>
+      `;
+    }
+
+    function goToMovie(movieId) {
+      window.location.href = `/movie?id=${movieId}`;
+    }
+
+    async function renderGenres() {
+      const container = document.getElementById('genresContainer');
+      container.innerHTML = ''; // Clear existing content
+      for (const genre of genres) {
+        const movies = await fetchMoviesByGenre(genre.id, currentSortBy);
+        const carousel = document.createElement('div');
+        carousel.innerHTML = `
+          <div class="carousel-title">${genre.name}</div>
+          <div class="row flex-nowrap overflow-auto px-3">
+            ${movies.map(movie => createMovieCard(movie)).join('')}
+          </div>
+        `;
+        container.appendChild(carousel);
+      }
+    }
+
+    document.getElementById('sortBy').addEventListener('change', function() {
+      currentSortBy = this.value;
+      renderGenres();
+    });
+
+    // Initialize
+    (async () => {
+      genres = await fetchGenres();
+      renderGenres();
+    })();
+  </script>
+</body>
+</html>

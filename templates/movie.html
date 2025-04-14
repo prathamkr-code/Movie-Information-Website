@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Movie Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      color: #212529;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .section {
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .review {
+      border-top: 1px solid #ddd;
+      margin-top: 10px;
+      padding-top: 10px;
+    }
+
+    #moviePoster {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    a {
+      color: #0d6efd;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .movie-info {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .movie-info > div {
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container py-4">
+    <a href="/" class="btn btn-outline-primary mb-3">← Back to Home</a>
+    <div class="section movie-info d-flex flex-wrap align-items-start">
+      <img id="moviePoster" src="" alt="Movie Poster" class="me-4 mb-3">
+      <div>
+        <h2 id="movieTitle">Loading title...</h2>
+        <p id="movieOverview" class="mt-3">Loading description...</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h4>Cast</h4>
+      <p id="cast">Loading cast...</p>
+    </div>
+
+    <div class="section">
+      <h4>Director</h4>
+      <p id="director">Loading director...</p>
+    </div>
+
+    <div class="section">
+      <h4>Reviews</h4>
+      <div id="reviews">Loading reviews...</div>
+    </div>
+  </div>
+
+  <script>
+    window.onload = async function () {
+      const params = new URLSearchParams(window.location.search);
+      const movieId = params.get("id");
+
+      if (!movieId) {
+        document.body.innerHTML = "<h2>Movie ID not found in URL</h2>";
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/movie/${movieId}`);
+        const data = await response.json();
+        console.log("API Data:", data);
+
+        document.getElementById("movieTitle").innerText = data.title || "Untitled";
+        document.getElementById("moviePoster").src = data.poster_path
+          ? `https://image.tmdb.org/t/p/w300${data.poster_path}`
+          : "https://via.placeholder.com/200x300?text=No+Image";
+        document.getElementById("moviePoster").alt = data.title || "Movie Poster";
+        document.getElementById("movieOverview").innerText = data.overview || "No description available.";
+
+        const castArray = data.credits?.cast?.slice(0, 5) || [];
+        document.getElementById("cast").innerText = castArray.length > 0
+          ? castArray.map(actor => actor.name).join(', ')
+          : "No cast info available.";
+
+        const directorObj = data.credits?.crew?.find(person => person.job === "Director");
+        document.getElementById("director").innerText = directorObj ? directorObj.name : "No director info available.";
+
+        const reviews = data.reviews?.results || [];
+        const reviewContainer = document.getElementById("reviews");
+        reviewContainer.innerHTML = reviews.length === 0
+          ? "<p>No reviews available.</p>"
+          : reviews.map(r => `
+              <div class="review">
+                <strong>${r.author}</strong>
+                <p>${r.content && r.content.length > 300 ? r.content.slice(0, 300) + '...' : r.content || "No content"}</p>
+              </div>
+            `).join('');
+      } catch (error) {
+        console.error("Error fetching movie data:", error);
+        document.getElementById("movieTitle").innerText = "Error loading title.";
+        document.getElementById("cast").innerText = "Error loading cast.";
+        document.getElementById("director").innerText = "Error loading director.";
+        document.getElementById("reviews").innerHTML = "Error loading reviews.";
+      }
+    };
+  </script>
+
+</body>
+</html>
